@@ -1,5 +1,7 @@
 # HƯỚNG DẪN CÀI ĐẶT TRỌN GÓI TV LAUNCHER, TỐI ƯU HỆ THỐNG & ĐIỀU KHIỂN GIỌNG NÓI
-### (Dành cho Android TV, Xiaomi MiTV, Redmi TV — Cài mới hoặc sau khi Factory Reset)
+### (Dành cho Android TV, Xiaomi MiTV, Redmi TV — Cài đè hoặc sau khi Factory Reset)
+<img width="1920" height="1080" alt="01" src="https://github.com/user-attachments/assets/3fa77434-5ab4-4317-b3fa-bc26c42834f2" />
+
 
 Thư mục này chứa đầy đủ công cụ cài đặt tự động 1-Click cho **TV Launcher**, đi kèm Bàn phím gõ tiếng Việt trên Remote, Dịch vụ tìm kiếm giọng nói Google Assistant tiếng Việt, bộ công cụ **Debloat tắt toàn bộ ứng dụng rác ngốn RAM của TV gốc**, tự động cài đặt **Múi giờ Việt Nam GMT+7**, và **Tài liệu hướng dẫn điều khiển giọng nói chi tiết**.
 
@@ -41,6 +43,8 @@ Thư mục này chứa đầy đủ công cụ cài đặt tự động 1-Click 
 | **`tvlauncher.apk`** | Bộ TV Launcher siêu nhẹ (~210 KB), thuần Java 8 không thư viện rác | Application ID: `com.ts.launcher` |
 | **`google_voice.apk`** | Google Katniss Voice Search tiếng Việt chuẩn TV | Tích hợp nút Voice trên Remote |
 | **`keyboard.apk`** | LeanKey Keyboard Pro (bàn phím tiếng Việt dành riêng cho Remote TV) | Tự động kích hoạt làm bàn phím chính |
+| **`tizentube-cobalt-arm-mod.apk`** | TizenTube (bản mode YouTube không quảng cáo) | Tự động kích hoạt Khi tìm kiếm |
+| **`vtv_tivi.apk`** | VTV Online (bản mode xem 12 kênh VTV) | Tự động kích hoạt Khi tìm kiếm |
 | **`adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll`** | Bộ công cụ kết nối Android Debug Bridge (ADB) độc lập | Chạy ngay không cần cài Android Studio |
 
 ---
