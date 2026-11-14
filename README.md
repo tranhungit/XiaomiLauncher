@@ -39,12 +39,14 @@ Thư mục này chứa đầy đủ công cụ cài đặt tự động 1-Click 
 | **`install_tv.bat`** | Script tự động quét IP, kết nối ADB, cài đặt trọn gói, chỉnh giờ GMT+7, cấp quyền và debloat RAM | Chạy trực tiếp trên Windows (Khuyên dùng) |
 | **`debloat_xiaomi.bat`** | Script chuyên dùng để tự quét IP và tắt nhanh 15 app rác / ngốn RAM | Chạy riêng bất cứ lúc nào |
 | **`restore_bloatware.bat`** | Script tự quét IP và khôi phục (bật lại) toàn bộ các app gốc đã tắt | Dùng khi muốn đưa TV về nguyên bản |
+| **`Config_Gemini.bat`** | Script tự động lưu cấu hình Gemini API Key vào TV |
 | **`Find_IP_SmartTV.bat`** | Công cụ độc lập quét tìm nhanh địa chỉ IP của Smart TV trong mạng LAN/Wi-Fi | Tự động quét đa luồng siêu tốc (~3s) |
 | **`tvlauncher.apk`** | Bộ TV Launcher siêu nhẹ (~210 KB), thuần Java 8 không thư viện rác | Application ID: `com.ts.launcher` |
 | **`google_voice.apk`** | Google Katniss Voice Search tiếng Việt chuẩn TV | Tích hợp nút Voice trên Remote |
 | **`keyboard.apk`** | LeanKey Keyboard Pro (bàn phím tiếng Việt dành riêng cho Remote TV) | Tự động kích hoạt làm bàn phím chính |
 | **`tizentube-cobalt-arm-mod.apk`** | TizenTube (bản mode YouTube không quảng cáo) | Tự động kích hoạt Khi tìm kiếm |
 | **`vtv_tivi.apk`** | VTV Online (bản mode xem 12 kênh VTV) | Tự động kích hoạt Khi tìm kiếm |
+| **`Config_Firebase.md`** | Hướng dẫn cấu hình Firebase để điều khiển TV bằng remote app |
 | **`adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll`** | Bộ công cụ kết nối Android Debug Bridge (ADB) độc lập | Chạy ngay không cần cài Android Studio |
 
 ---
