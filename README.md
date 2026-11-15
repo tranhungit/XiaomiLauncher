@@ -71,7 +71,7 @@ Sau khi TV khởi động vào màn hình ban đầu:
 ## 🚀 4. Các Bước Cài Đặt Tự Động 1-Click
 
 1. Mở thư mục `INSTALL` trên máy tính Windows.
-2. Nhấp đúp chuột vào file **`install_tv.bat`**.
+2. Nhấp đúp chuột vào file **`install_tv.bat`**. (Có nhiều máy windows version thấp không chạy được trực tiếp thì vào Run, gõ cmd, rồi sao đó di chuyển đến thư mục có file install_tv.bat, gõ nó và chạy)
 3. **Cơ chế tự động kết nối thông minh**:
    - Tool tự động kiểm tra xem TV đã kết nối qua USB hoặc Wi-Fi chưa.
    - Nếu chưa có kết nối, tool sẽ **tự động quét đa luồng 60 luồng** dải IP mạng Wi-Fi/LAN trong vòng ~5 giây để tìm Smart TV đang mở cổng ADB 5555.
