@@ -1,6 +1,6 @@
 # HƯỚNG DẪN ĐIỀU KHIỂN & TÌM KIẾM GIỌNG NÓI (VOICE CONTROL ENGINE) — TV LAUNCHER
 
-Tài liệu này mô tả chi tiết kiến trúc kỹ thuật, thuật toán xử lý và hướng dẫn cú pháp câu lệnh điều khiển bằng giọng nói trên TV Launcher (Android TV 11 - ROM Xiaomi MiTV).
+Tài liệu này mô tả chi tiết kiến trúc kỹ thuật, thuật toán xử lý và hướng dẫn cú pháp câu lệnh điều khiển bằng giọng nói trên TV Launcher (Android TV 11 - ROM Xiaomi MiTV, phiên bản hiện tại: **v5.5.55**).
 
 ---
 
@@ -19,93 +19,79 @@ Hệ thống giọng nói hoạt động theo mô hình luồng thời gian th�
         │
         ▼ (HomeActivity.handleVoiceQuery)
  ┌────────────────────────────────────────────────────────┐
- │ BỘ ĐIỀU PHỐI GIỌNG NÓI 3 TẦNG (VOICE DISPATCHER ENGINE) │
+ │ BỘ ĐIỀU PHỐI GIỌNG NÓI 4 TẦNG (VOICE DISPATCHER ENGINE) │
  ├────────────────────────────────────────────────────────┤
- │ 1. ƯU TIÊN SỐ 1: Bắt kênh truyền hình VTV (1-9, VTV Go)│
+ │ 0. ƯU TIÊN SỐ 0: Cài đặt Hệ thống Xiaomi (Sound/Display/Net)│
+ │ 1. ƯU TIÊN SỐ 1: Bắt kênh truyền hình VTV (12 kênh VTV)│
  │ 2. BỘ LỌC NỘI DUNG: Nhận diện nhạc, phim, karaoke...   │
  │ 3. ƯU TIÊN SỐ 2: Khởi chạy App (3 Tầng Fuzzy Matching) │
  └────────────────────────────────────────────────────────┘
         │
    ┌────┴──────────────────────────────┐
-   ▼ (Khớp Kênh / App)                 ▼ (Không khớp lệnh / Tìm video)
-[Mở Deeplink VTV Go / Mở App]     [Chuyển giao Katniss / YouTube Search]
+   ▼ (Khớp Cài đặt / Kênh / App)       ▼ (Không khớp lệnh / Tìm video)
+[Mở Cài đặt / Kênh VTV / App]     [Mở Trang Kết quả Tìm kiếm YouTube]
+                                  (Dừng chờ chọn, KHÔNG tự động phát)
 ```
 
-### Các thành phần cốt lõi trong mã nguồn:
-1. [**`VoiceAccessibilityService`**](file:///e:/Antigravity_Code/CODE_LAUNCHER_TV/tv_launcher/src/vn/herotran/launcher/VoiceAccessibilityService.java):
-   - Đón bắt phím Mic remote (`KEYCODE_VOICE_ASSIST`, `KEYCODE_SEARCH`, `KEYCODE_ASSIST`, `KEYCODE_UNKNOWN`).
-   - Khởi chạy Katniss (`startVoiceSearch`). Khi nhả phím mic (`ACTION_UP`), tự động thực hiện thao tác hoàn tất thu âm (`finishAndSubmitSearch`) qua View click hoặc tap cử chỉ fallback.
-   - Giám sát văn bản STT hiển thị trên màn hình Katniss để đánh chặn tức thì nếu người dùng phát lệnh điều khiển.
-2. [**`HomeActivity.handleVoiceQuery`**](file:///e:/Antigravity_Code/CODE_LAUNCHER_TV/tv_launcher/src/vn/herotran/launcher/HomeActivity.java):
-   - Chuẩn hóa văn bản tiếng Việt ([`normalize`](file:///e:/Antigravity_Code/CODE_LAUNCHER_TV/tv_launcher/src/vn/herotran/launcher/HomeActivity.java#L819)): loại bỏ dấu thanh điệu, dấu câu, chuẩn hóa chữ đ/d.
-   - Bóc tách tiền tố lệnh mở rộng ([`stripVoiceCommandPrefix`](file:///e:/Antigravity_Code/CODE_LAUNCHER_TV/tv_launcher/src/vn/herotran/launcher/HomeActivity.java#L846)).
-   - Phân loại ngữ nghĩa: Tự động tách biệt giữa **lệnh điều khiển mở app/kênh** và **truy vấn tìm kiếm nội dung**.
-3. [**`VoiceHelper`**](file:///e:/Antigravity_Code/CODE_LAUNCHER_TV/tv_launcher/src/vn/herotran/launcher/VoiceHelper.java) & [**`VoiceLangFixer`**](file:///e:/Antigravity_Code/CODE_LAUNCHER_TV/tv_launcher/src/vn/herotran/launcher/VoiceLangFixer.java):
-   - Cố định dịch vụ Voice Assistant và đảm bảo Katniss luôn nhận diện chuẩn tiếng Việt (`vi-VN`).
-
----
-
-## 2. Các Cải Tiến Lớn Trong Bộ Nhận Diện Giọng Nói (v1.6)
+## 2. Các Tính Năng & Cải Tiến Nổi Bật (v5.5.55)
 
 > [!TIP]
-> **Điểm mới vượt trội:** Người dùng **KHÔNG CÒN BẮT BUỘC** phải nói từ *"Mở/Bật"* mới kích hoạt được ứng dụng hoặc kênh truyền hình!
+> **Điểm mới vượt trội:**
+> 1. Người dùng **KHÔNG CÒN BẮT BUỘC** phải nói từ *"Mở/Bật"* mới kích hoạt được ứng dụng hoặc kênh truyền hình!
+> 2. Hỗ trợ điều khiển **Cài đặt Hệ thống Xiaomi** (Âm thanh, Hình ảnh, Mạng) hoàn toàn bằng giọng nói.
+> 3. Tìm kiếm YouTube **hiển thị danh sách kết quả và dừng lại**, không tự phát làm phiền người dùng.
 
 ### 2.1. Tự do câu lệnh (Prefix-Free Command)
 - Trước đây: Bắt buộc phải nói *"Mở YouTube"*, *"Bật VTV1"*. Nếu chỉ nói *"YouTube"* hay *"VTV3"*, hệ thống sẽ bỏ qua và đẩy sang tìm kiếm web.
 - Bây giờ: Bạn có thể nói tự nhiên:
   - Chỉ cần nói: *"VTV1"*, *"Kênh 3"*, *"YouTube"*, *"TizenTube"*, *"Netflix"*, *"FPT Play"* $\rightarrow$ Launcher tự động nhận diện và mở ngay lập tức!
-  - Vẫn hỗ trợ trọn vẹn mọi tiền tố điều khiển quen thuộc: *"Mở"*, *"Bật"*, *"Vào"*, *"Xem"*, *"Chạy"*, *"Chuyển sang"*, *"Chuyển đến"*, *"Chuyển qua"*, *"Chuyển kênh"*, *"Cho xem"*, *"Cho tôi xem"*, *"Mở app"*, *"Mở ứng dụng"*.
+  - Vẫn hỗ trợ trọn vẹn mọi tiền tố điều khiển quen thuộc: *"Mở"*, *"Bật"*, *"Vào"*, *"Xem"*, *"Chạy"*, *"Chuyển sang"*, *"Khởi động"*.
 
-### 2.2. Bộ lọc phân tách nội dung thông minh (`isContentSearchQuery`)
-Để tránh việc người dùng tìm kiếm video YouTube bị nhận nhầm thành mở app, hệ thống áp dụng bộ lọc từ khóa nội dung:
-- Khi câu nói bắt đầu bằng: `"bài "`, `"bài hát "`, `"video "`, `"nhạc "`, `"phim "`, `"karaoke "`, `"clip "`, `"remix "`, `"hài "`, `"tin tức "`, `"kênh youtube "`...
-- Launcher sẽ nhận biết ngay đây là **truy vấn nội dung** và chủ động nhường quyền cho Google Katniss / YouTube tìm kiếm chính xác, không can thiệp mở app.
-
-### 2.3. Thuật toán Fuzzy Matching 3 Tầng Cho Ứng Dụng
-Hệ thống kết hợp 3 tầng so khớp để nhận diện tên app một cách chính xác nhất:
-1. **Tầng 1 - Bảng âm vị tiếng Việt (Phonics Alias Table):**
-   - Ánh xạ trực tiếp các biến thể phát âm tiếng bồi, từ viết tắt và nhận diện sai của STT (ví dụ: *"du túp"*, *"u tub"*, *"tai zen"*, *"net phờ lích"*, *"ai ci di"*, *"ba sáu không"*...).
-2. **Tầng 2 - Khớp chuỗi con (Substring Matching):**
-   - Chấm điểm ưu tiên từ 0.85 đến 0.95 dựa trên tỷ lệ độ dài chuỗi con so với tên ứng dụng gốc.
-3. **Tầng 3 - Khoảng cách Levenshtein (Fuzzy Edit Distance):**
-   - Thuật toán Levenshtein được tối ưu bộ nhớ 1D DP $O(\min(M, N))$, không gây áp lực RAM trên TV.
-   - Áp dụng ngưỡng tương quan linh hoạt:
-     - Khi có tiền tố lệnh (*"Mở..."*): Ngưỡng tin cậy **0.65** (linh hoạt nhận diện cả khi phát âm chưa chuẩn).
-     - Khi không có tiền tố lệnh: Ngưỡng tin cậy **0.75** kèm giới hạn độ dài câu $\le 3$ từ để loại trừ triệt để câu tìm kiếm video thông thường.
+### 2.2. Nhận diện giọng nói vùng miền & từ đồng âm
+- Kênh truyền hình: *"Kênh một"*, *"Kênh ba"*, *"Kênh chín"*, *"VTV ba"*, *"VTV năm Tây Nguyên"*, *"VTV Cần Thơ"*.
+- Tiếng Anh phiên âm Việt: *"Du túp"*, *"Iu túp"*, *"Ti zen"*, *"Tai zen"*, *"Net phờ lích"*, *"Ép pi ti"*, *"Vai on"*.
 
 ---
 
-## 3. Bảng Cú Pháp Mở Kênh Truyền Hình VTV (Qua VTV Go)
+## 3. Điều Khiển Cài Đặt Hệ Thống Xiaomi (System Settings)
 
-Hệ thống tích hợp mở trực tiếp luồng truyền hình quốc gia VTV thông qua Deeplink VTV Go (`vtvgo://play?channelId=...`).
+Hệ thống tích hợp đánh chặn sớm các câu lệnh điều khiển cài đặt Xiaomi để mở trực tiếp menu tương ứng:
 
-### 3.1. Các dạng câu lệnh được hỗ trợ
-Người dùng có thể đọc theo bất kỳ phong cách nào dưới đây:
-- **Đọc số kênh:** *"Kênh 1"*, *"Kênh 3"*, *"Mở kênh sáu"*, *"Chuyển sang kênh 9"*.
-- **Đọc tên đài + số:** *"VTV1"*, *"VTV 3"*, *"Mở VTV hai"*, *"Xem VTV3 HD"*, *"VTV kênh 5"*.
-- **Kênh đặc thù:** *"VTV Cần Thơ"*, *"Xem VTV Cần Thơ HD"* $\rightarrow$ Tự động mở kênh VTV6.
-
-### 3.2. Bảng ánh xạ kênh VTV1 - VTV9
-
-| Kênh phát | Cú pháp ví dụ | Kênh ID VTV Go | Thể loại |
-| :--- | :--- | :--- | :--- |
-| **VTV1** | *"VTV1"*, *"Kênh 1"*, *"Mở VTV một"* | `channelId=1` | Thời sự - Chính luận |
-| **VTV2** | *"VTV2"*, *"Kênh 2"*, *"Xem VTV hai"* | `channelId=2` | Khoa học & Giáo dục |
-| **VTV3** | *"VTV3"*, *"Kênh 3"*, *"Bật VTV ba HD"* | `channelId=3` | Thể thao & Giải trí |
-| **VTV4** | *"VTV4"*, *"Kênh 4"*, *"Kênh tư"*, *"Mở VTV bốn"* | `channelId=4` | Truyền hình Đối ngoại |
-| **VTV5** | *"VTV5"*, *"Kênh 5"*, *"Xem VTV năm"* | `channelId=5` | Tiếng Dân tộc thiểu số |
-| **VTV6 / Cần Thơ**| *"VTV6"*, *"Kênh 6"*, *"VTV Cần Thơ"*, *"VTV sáu"* | `channelId=13` | Kênh VTV Cần Thơ / Thể thao |
-| **VTV7** | *"VTV7"*, *"Kênh 7"*, *"Bật VTV bảy"* | `channelId=27` | Truyền hình Giáo dục |
-| **VTV8** | *"VTV8"*, *"Kênh 8"*, *"Mở VTV tám"* | `channelId=36` | Khu vực Miền Trung - Tây Nguyên |
-| **VTV9** | *"VTV9"*, *"Kênh 9"*, *"Xem VTV chín"* | `channelId=39` | Khu vực Nam Bộ |
-
-*(Hệ thống đã tự động lọc bỏ dấu chấm và gạch nối như `V.T.V 1` hay `V-T-V 3`).*
+| Mục Cài Đặt | Câu lệnh giọng nói hỗ trợ | Cơ chế kỹ thuật |
+| :--- | :--- | :--- |
+| **Cài đặt Âm thanh** | *"Cài đặt âm thanh"*, *"Mở cài đặt âm thanh"*, *"Thiết lập âm thanh"*, *"Chỉnh âm thanh"*, *"Sound settings"*, *"Sound setting"* | Gửi Broadcast `com.xiaomi.mitv.settings.sound_settings` $\rightarrow$ Mở popup Sound settings gốc của Xiaomi (Loa TV, Âm lượng phím, Hiệu ứng âm thanh...). |
+| **Cài đặt Hình ảnh** | *"Cài đặt hình ảnh"*, *"Mở cài đặt hình ảnh"*, *"Thiết lập hình ảnh"*, *"Chỉnh hình ảnh"*, *"Display settings"*, *"Image settings"* | Gửi Broadcast `com.xiaomi.mitv.settings.display_settings` $\rightarrow$ Mở popup Image settings gốc của Xiaomi (Đèn nền động, Bảo vệ mắt, Nhiệt độ màu...). |
+| **Cài đặt Mạng / Wi-Fi** | *"Cài đặt mạng"*, *"Mở cài đặt mạng"*, *"Cài đặt wifi"*, *"Mở wifi"*, *"Thiết lập mạng"*, *"Kết nối mạng"*, *"Network settings"*, *"Wifi settings"* | Khởi chạy Activity `com.xiaomi.mitv.settings/.entry.MainActivity` $\rightarrow$ Mở trang Connection settings và focus sẵn vào tab Network settings (Wi-Fi, Ethernet, Kiểm tra tốc độ mạng...). |
 
 ---
 
-## 4. Bảng Cú Pháp Mở Nhanh Ứng Dụng (App Launching)
+## 4. Điều Khiển Kênh Truyền Hình VTV
 
-Người dùng có thể nói trực tiếp tên app hoặc kèm tiền tố *"Mở / Bật / Vào / Chạy"*:
+Hệ thống hỗ trợ cơ chế phát đa tầng thông minh:
+1. **Tầng 1 (Ưu tiên số 1):** Mở trực tiếp kênh qua app **VTV Online** (`vn.vtv.vtvtivi`).
+2. **Tầng 2:** Nếu chưa cài VTV Online, tự động fallback sang **VTV Go** (`vn.vtv.vtvgotv`).
+3. **Tầng 3:** Nếu cả 2 app trên đều không có, mở kênh qua **FPT Play** (`net.fptplay.ottbox` / `com.fpt.play`).
+
+| Kênh Truyền Hình | Các câu lệnh tương đương | Kênh số |
+| :--- | :--- | :---: |
+| **VTV1 HD** | *"VTV1"*, *"VTV 1"*, *"Kênh 1"*, *"Kênh một"*, *"Xem thời sự"* | 1 |
+| **VTV2 HD** | *"VTV2"*, *"VTV 2"*, *"Kênh 2"*, *"Kênh hai"*, *"Khoa học giáo dục"* | 2 |
+| **VTV3 HD** | *"VTV3"*, *"VTV 3"*, *"Kênh 3"*, *"Kênh ba"*, *"Giải trí"* | 3 |
+| **VTV4 HD** | *"VTV4"*, *"VTV 4"*, *"Kênh 4"*, *"Kênh bốn"*, *"Đối ngoại"* | 4 |
+| **VTV5 HD** | *"VTV5"*, *"VTV 5"*, *"Kênh 5"*, *"Kênh năm"*, *"Dân tộc"* | 5 |
+| **VTV5 Tây Nam Bộ** | *"VTV5 Tây Nam Bộ"*, *"VTV5 Nam Bộ"*, *"VTV5 tnb"* | 6 |
+| **VTV5 Tây Nguyên** | *"VTV5 Tây Nguyên"*, *"VTV5 tn"* | 7 |
+| **VTV6 HD** | *"VTV6"*, *"VTV 6"*, *"Kênh 6"*, *"Kênh sáu"* | 8 |
+| **VTV7 HD** | *"VTV7"*, *"VTV 7"*, *"Kênh 7"*, *"Kênh bảy"*, *"Giáo dục"* | 9 |
+| **VTV8 HD** | *"VTV8"*, *"VTV 8"*, *"Kênh 8"*, *"Kênh tám"*, *"Miền Trung"* | 10 |
+| **VTV9 HD** | *"VTV9"*, *"VTV 9"*, *"Kênh 9"*, *"Kênh chín"*, *"Nam Bộ"* | 11 |
+| **VTV Cần Thơ (VTV10)** | *"VTV Cần Thơ"*, *"VTV10"*, *"VTV 10"*, *"Kênh 10"*, *"Kênh mười"* | 12 |
+
+---
+
+## 5. Khởi Chạy Nhanh Ứng Dụng (App Launching)
+
+Người dùng có thể đọc tên ứng dụng trần hoặc đi kèm các tiền tố:
 
 | Ứng dụng | Cách phát âm được hỗ trợ | Cơ chế & Package kích hoạt |
 | :--- | :--- | :--- |
@@ -119,29 +105,31 @@ Người dùng có thể nói trực tiếp tên app hoặc kèm tiền tố *"M
 | **iQIYI** | *"iQIYI"*, *"Ai ci di"*, *"Ai ki di"*, *"Ai ky di"* | `com.iqiyi.i18n.tv` |
 | **Quản lý File** | *"File"*, *"Tập tin"*, *"AnExplorer"*, *"Quản lý tập tin"* | `dev.dworks.apps.anexplorer` |
 | **Kho Ứng Dụng** | *"DL Store"*, *"Cửa hàng"*, *"Store"* | `com.downloader.store` |
-| **Cài đặt Hệ thống** | *"Cài đặt"*, *"Thiết lập"*, *"Settings"*, *"Cài đặt TV"* | `com.xiaomi.mitv.settings` |
+| **Cài đặt TV** | *"Cài đặt"*, *"Thiết lập"*, *"Settings"*, *"Cài đặt TV"* | `com.xiaomi.mitv.settings` |
 | **Mọi app khác** | Đọc tên app hiển thị trên màn hình (vd: *"VLC"*, *"Monster"*...) | So khớp tự động qua danh sách ứng dụng đã cài đặt trên TV (Levenshtein Distance). |
 
 ---
 
-## 5. Tìm Kiếm Video & Nội Dung Trực Tuyến
+## 6. Tìm Kiếm Video & Nội Dung (Tắt Auto-Play)
 
-Khi câu nói không khớp với kênh truyền hình hay ứng dụng, câu lệnh sẽ tự động được gửi tới công cụ tìm kiếm:
+Khi câu nói không khớp với kênh truyền hình hay ứng dụng, câu lệnh sẽ tự động chuyển sang tìm kiếm video trên YouTube / TizenTube:
 
-1. **Tìm kiếm Video / Nhạc trên YouTube:**
-   - Cú pháp: *"Tìm kiếm [tên video]"*, *"Nhạc [thể loại]"*, *"Karaoke [tên bài hát]"*, *"Phim [tên phim]"*...
-   - Ví dụ:
-     - *"Karaoke Hoa Nở Về Đêm tone nam"*
-     - *"Nhạc trẻ remix sôi động"*
-     - *"Video 4K thiên nhiên OLED"*
-     - *"Hài Hoài Linh Chí Tài"*
-   - Kết quả: Hệ thống tự động chuyển tiếp tới YouTube (hoặc TizenTube) để hiển thị danh sách video hoặc phát trực tiếp.
-2. **Tìm kiếm thời tiết, thông tin tổng hợp:**
+1. **Cơ chế tìm kiếm (Từ v5.5.53):**
+   - **Tắt Auto-Play hoàn toàn:** Hệ thống **không tự động phát video ngay lập tức**.
+   - **Mở trang kết quả tìm kiếm:** Kích hoạt intent `https://www.youtube.com/results?search_query=` kèm cờ `FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP`.
+   - **Dừng chờ người dùng thao tác:** Cả YouTube TV và TizenTube Cobalt Mod đều hiển thị trọn vẹn danh sách kết quả, focus sẵn ở video đầu tiên để người dùng tự dùng D-Pad remote di chuyển và bấm OK để chọn xem.
+2. **Các ví dụ tìm kiếm phổ biến:**
+   - *"Nhạc trẻ remix sôi động"*
+   - *"Karaoke Hoa Nở Về Đêm tone nam"*
+   - *"Video 4K thiên nhiên OLED"*
+   - *"Hài Hoài Linh Chí Tài"*
+   - *"Phim hoạt hình thiếu nhi"*
+3. **Tìm kiếm thông tin tổng hợp qua Google Assistant:**
    - Bấm mic và hỏi: *"Thời tiết hôm nay thế nào?"*, *"Giá vàng hôm nay"*, *"Mấy giờ rồi?"* $\rightarrow$ Google Assistant trả lời trực quan bằng giọng nói và hiển thị thẻ thông tin trên TV.
 
 ---
 
-## 6. Mẹo Sử Dụng Cho Độ Nhạy Cao Nhất
+## 7. Mẹo Sử Dụng Cho Độ Nhạy Cao Nhất
 
 1. **Thao tác bấm nút Mic:**
    - Bấm **1 lần dứt khoát** vào nút Mic trên Remote Xiaomi MiTV.
@@ -152,11 +140,11 @@ Khi câu nói không khớp với kênh truyền hình hay ứng dụng, câu l�
 3. **Phát âm liền mạch:**
    - Tránh ngập ngừng ở giữa câu nói (ví dụ thay vì đọc *"Mở... [nghỉ 1 giây]... VTV3"*, hãy đọc dứt khoát *"VTV3"* hoặc *"Kênh 3"*).
 4. **Tận dụng cú pháp ngắn:**
-   - Càng nói ngắn gọn (*"VTV1"*, *"YouTube"*, *"FPT"*, *"Kênh 3"*), hệ thống xử lý càng nhanh và độ chính xác càng tiệm cận 100%.
+   - Càng nói ngắn gọn (*"VTV1"*, *"YouTube"*, *"FPT"*, *"Cài đặt âm thanh"*), hệ thống xử lý càng nhanh và độ chính xác càng tiệm cận 100%.
 
 ---
 
-## 7. Xử Lý Các Tình Huống Thường Gặp
+## 8. Xử Lý Các Tình Huống Thường Gặp
 
 | Vấn đề | Nguyên nhân | Giải pháp |
 | :--- | :--- | :--- |
