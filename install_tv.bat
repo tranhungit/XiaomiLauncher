@@ -144,6 +144,7 @@ echo [*] Cap toan bo quyen he thong cho Launcher [WRITE_SECURE_SETTINGS, STORAGE
 "%ADB%" shell pm grant com.ts.launcher android.permission.READ_EXTERNAL_STORAGE >nul 2>&1
 "%ADB%" shell pm grant com.ts.launcher android.permission.WRITE_EXTERNAL_STORAGE >nul 2>&1
 "%ADB%" shell cmd appops set com.ts.launcher MANAGE_EXTERNAL_STORAGE allow >nul 2>&1
+"%ADB%" shell cmd appops set com.ts.launcher REQUEST_INSTALL_PACKAGES allow >nul 2>&1
 "%ADB%" shell cmd appops set com.ts.launcher RUN_IN_BACKGROUND allow >nul 2>&1
 "%ADB%" shell cmd appops set com.ts.launcher START_FOREGROUND allow >nul 2>&1
 "%ADB%" shell dumpsys deviceidle whitelist +com.ts.launcher >nul 2>&1
