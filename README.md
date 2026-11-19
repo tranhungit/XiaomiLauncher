@@ -1,6 +1,7 @@
 # HƯỚNG DẪN CÀI ĐẶT TRỌN GÓI TV LAUNCHER, TỐI ƯU HỆ THỐNG & ĐIỀU KHIỂN GIỌNG NÓI
 ### (Dành cho Android TV, Xiaomi MiTV, Redmi TV — Cài đè hoặc sau khi Factory Reset)
-<img width="1920" height="1080" alt="01" src="https://github.com/user-attachments/assets/3fa77434-5ab4-4317-b3fa-bc26c42834f2" />
+<img width="1920" height="1080" alt="screen_current" src="https://github.com/user-attachments/assets/3b042755-e7bf-41b1-921f-dcfba90846cf" />
+
 
 
 Thư mục này chứa đầy đủ công cụ cài đặt tự động 1-Click cho **TV Launcher**, đi kèm Bàn phím gõ tiếng Việt trên Remote, Dịch vụ tìm kiếm giọng nói Google Assistant tiếng Việt, bộ công cụ **Debloat tắt toàn bộ ứng dụng rác ngốn RAM của TV gốc**, tự động cài đặt **Múi giờ Việt Nam GMT+7**, và **Tài liệu hướng dẫn điều khiển giọng nói chi tiết**.
